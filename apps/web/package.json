@@ -1,0 +1,38 @@
+{
+  "name": "shield-x",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "predev": "node scripts/clean-next.mjs",
+    "prebuild": "node scripts/clean-next.mjs",
+    "dev": "next dev",
+    "build": "prisma generate && next build",
+    "start": "next start",
+    "postinstall": "prisma generate",
+    "db:push": "prisma db push",
+    "db:migrate": "prisma migrate dev"
+  },
+  "dependencies": {
+    "@firebase/app": "^0.10.13",
+    "@firebase/auth": "^1.7.9",
+    "@next/swc-win32-x64-msvc": "^14.2.33",
+    "@prisma/client": "5.22.0",
+    "caniuse-lite": "^1.0.30001809",
+    "firebase": "^10.14.1",
+    "firebase-admin": "12.7.0",
+    "lucide-react": "0.468.0",
+    "next": "^14.2.35",
+    "prisma": "5.22.0",
+    "razorpay": "2.9.6",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "resend": "4.0.1",
+    "zod": "3.25.76"
+  },
+  "devDependencies": {
+    "@types/node": "22.10.2",
+    "@types/react": "18.3.18",
+    "@types/react-dom": "18.3.5",
+    "typescript": "5.7.2"
+  }
+}

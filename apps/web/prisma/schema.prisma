@@ -1,0 +1,316 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  SUPERVISOR
+  WORKER
+}
+
+enum AccountStatus {
+  PENDING
+  ACTIVE
+  SUSPENDED
+}
+
+enum SubscriptionStatus {
+  PENDING
+  ACTIVE
+  EXPIRED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+  EXPIRED
+  REVOKED
+}
+
+enum LicenseStatus {
+  ACTIVE
+  EXPIRED
+  REVOKED
+}
+
+enum OrganizationStatus {
+  ACTIVE
+  SUBSCRIPTION_INACTIVE
+  SUSPENDED
+}
+
+enum AttendanceStatus {
+  PRESENT
+  ABSENT
+  LATE
+  ON_LEAVE
+}
+
+enum AlertSeverity {
+  INFO
+  WARNING
+  CRITICAL
+}
+
+enum AlertStatus {
+  ACTIVE
+  ACKNOWLEDGED
+  RESOLVED
+}
+
+model Organization {
+  id               String             @id @default(uuid())
+  name             String
+  companyName      String
+  industry         String
+  country          String
+  primarySite      String
+  email            String?
+  phone            String?
+  status           OrganizationStatus @default(ACTIVE)
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  users            User[]
+  sites            Site[]
+  subscriptions    Subscription[]
+  licenses         License[]
+  invitations      Invitation[]
+  auditLogs        AuditLog[]
+  alerts           Alert[]
+  attendance       Attendance[]
+  monitoringEvents MonitoringEvent[]
+}
+
+model User {
+  id                  String            @id @default(uuid())
+  firebaseUid         String            @unique
+  organizationId      String
+  siteId              String?
+  zoneId              String?
+  supervisorId        String?
+  name                String
+  email               String            @unique
+  phone               String
+  role                Role
+  status              AccountStatus     @default(PENDING)
+  workerCode          String?           @unique
+  shift               String?
+  helmetStatus        String?
+  vestStatus          String?
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+  organization        Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  site                Site?             @relation(fields: [siteId], references: [id])
+  zone                Zone?             @relation(fields: [zoneId], references: [id])
+  supervisor          User?             @relation("SupervisorWorkers", fields: [supervisorId], references: [id])
+  workers             User[]            @relation("SupervisorWorkers")
+  invitationsSent     Invitation[]      @relation("Inviter")
+  invitationsAccepted Invitation[]      @relation("AcceptedUser")
+  attendance          Attendance[]
+  alerts              Alert[]
+  monitoringEvents    MonitoringEvent[]
+}
+
+model Site {
+  id               String            @id @default(uuid())
+  organizationId   String
+  name             String
+  location         String
+  description      String?
+  active           Boolean           @default(true)
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @default(now()) @updatedAt
+  organization     Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  users            User[]
+  zones            Zone[]
+  alerts           Alert[]
+  attendance       Attendance[]
+  monitoringEvents MonitoringEvent[]
+}
+
+model Zone {
+  id               String            @id @default(uuid())
+  siteId           String
+  name             String
+  description      String?
+  active           Boolean           @default(true)
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  site             Site              @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  users            User[]
+  alerts           Alert[]
+  monitoringEvents MonitoringEvent[]
+
+  @@unique([siteId, name])
+}
+
+model Plan {
+  id             String         @id
+  name           String         @unique
+  pricePaise     Int
+  billingMonths  Int            @default(12)
+  maxSupervisors Int
+  maxWorkers     Int
+  maxSites       Int
+  features       String[]
+  active         Boolean        @default(true)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @default(now()) @updatedAt
+  subscriptions  Subscription[]
+}
+
+model Payment {
+  id                String        @id @default(uuid())
+  razorpayOrderId   String        @unique
+  razorpayPaymentId String?       @unique
+  amountPaise       Int
+  currency          String        @default("INR")
+  gateway           String        @default("RAZORPAY")
+  status            PaymentStatus @default(PENDING)
+  payload           Json?
+  paidAt            DateTime?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  subscription      Subscription?
+}
+
+model Subscription {
+  id             String             @id @default(uuid())
+  organizationId String
+  planId         String
+  paymentId      String             @unique
+  status         SubscriptionStatus @default(PENDING)
+  startsAt       DateTime?
+  expiresAt      DateTime?
+  createdAt      DateTime           @default(now())
+  organization   Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  plan           Plan               @relation(fields: [planId], references: [id])
+  payment        Payment            @relation(fields: [paymentId], references: [id])
+  license        License?
+}
+
+model License {
+  id             String        @id @default(uuid())
+  organizationId String
+  subscriptionId String        @unique
+  key            String        @unique
+  // Nullable only to preserve licenses issued before signed payloads were stored.
+  signedPayload  String?
+  signature      String
+  publicKey      String
+  status         LicenseStatus @default(ACTIVE)
+  issuedAt       DateTime      @default(now())
+  expiresAt      DateTime
+  organization   Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  subscription   Subscription  @relation(fields: [subscriptionId], references: [id])
+}
+
+model Invitation {
+  id             String           @id @default(uuid())
+  organizationId String
+  invitedById    String
+  email          String
+  name           String
+  phone          String
+  workerCode     String?
+  role           Role
+  siteId         String?
+  zoneId         String?
+  shift          String?
+  supervisorId   String?
+  acceptedUserId String?
+  tokenHash      String           @unique
+  status         InvitationStatus @default(PENDING)
+  expiresAt      DateTime
+  acceptedAt     DateTime?
+  createdAt      DateTime         @default(now())
+  organization   Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  invitedBy      User             @relation("Inviter", fields: [invitedById], references: [id])
+  acceptedUser   User?            @relation("AcceptedUser", fields: [acceptedUserId], references: [id])
+}
+
+model AuditLog {
+  id             String       @id @default(uuid())
+  organizationId String
+  actorId        String?
+  action         String
+  entityType     String
+  entityId       String
+  metadata       Json?
+  createdAt      DateTime     @default(now())
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+}
+
+model Attendance {
+  id             String           @id @default(uuid())
+  organizationId String
+  userId         String
+  siteId         String
+  date           DateTime
+  status         AttendanceStatus
+  checkIn        DateTime?
+  checkOut       DateTime?
+  recordedById   String?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  organization   Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user           User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  site           Site             @relation(fields: [siteId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date])
+  @@index([organizationId, siteId, date])
+}
+
+model Alert {
+  id             String        @id @default(uuid())
+  organizationId String
+  siteId         String
+  zoneId         String?
+  userId         String?
+  type           String
+  title          String
+  message        String
+  severity       AlertSeverity
+  status         AlertStatus   @default(ACTIVE)
+  occurredAt     DateTime      @default(now())
+  resolvedAt     DateTime?
+  organization   Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  site           Site          @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  zone           Zone?         @relation(fields: [zoneId], references: [id])
+  user           User?         @relation(fields: [userId], references: [id])
+
+  @@index([organizationId, siteId, status])
+}
+
+model MonitoringEvent {
+  id             String       @id @default(uuid())
+  organizationId String
+  siteId         String
+  zoneId         String?
+  workerId       String
+  helmetStatus   String
+  vestStatus     String
+  source         String
+  recordedAt     DateTime     @default(now())
+  metadata       Json?
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  site           Site         @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  zone           Zone?        @relation(fields: [zoneId], references: [id])
+  worker         User         @relation(fields: [workerId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId, siteId, recordedAt])
+}

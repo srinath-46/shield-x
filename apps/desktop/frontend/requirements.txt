@@ -1,0 +1,140 @@
+===============================================================================
+Shield X — Site Supervisor Desktop Application (Frontend)
+Requirements and environment specification
+===============================================================================
+
+NOTE ON THIS FILE
+-----------------
+This is a Node.js / TypeScript project, not a Python one. Dependencies are
+installed from package.json and resolved exactly by package-lock.json:
+
+    npm install        # installs everything listed below, exact versions
+
+This file is the human-readable summary for reviewers and for the backend team
+setting up a machine. It is documentation, not an installer input. If a version
+here ever disagrees with package-lock.json, the lockfile is correct.
+
+
+-------------------------------------------------------------------------------
+1. SYSTEM REQUIREMENTS
+-------------------------------------------------------------------------------
+Node.js               >= 20.19          (developed on 23.10.0)
+npm                   >= 10             (developed on 11.18.0; lockfile v3)
+Operating system      Windows 10/11, macOS 11+, or Linux with a desktop session
+Disk                  ~600 MB for node_modules incl. the Electron binary
+RAM                   4 GB to build; 8 GB recommended for `npm run dev`
+Display               1024x700 minimum — the Electron window's enforced minimum
+
+Notes
+  - `npm install` downloads the Electron 32 binary (~100 MB) on first run.
+    Behind a proxy, set ELECTRON_MIRROR or electron_config_cache.
+  - `npm run smoke` opens a real Electron window and needs a display surface.
+    Headless CI must run it under a virtual display (e.g. xvfb-run) or skip it.
+  - No database, no runtime services, and no network access are required: the
+    application currently runs entirely on in-memory mock data.
+
+
+-------------------------------------------------------------------------------
+2. RUNTIME DEPENDENCIES            (bundled into the shipped application)
+-------------------------------------------------------------------------------
+react                       18.3.1      UI runtime
+react-dom                   18.3.1      DOM renderer
+react-router-dom            6.30.4      HashRouter — the app is served from file://
+@fontsource/archivo         5.3.0       self-hosted brand typeface (no CDN at runtime)
+
+
+-------------------------------------------------------------------------------
+3. BUILD AND DEVELOPMENT DEPENDENCIES
+-------------------------------------------------------------------------------
+Application shell
+  electron                  32.3.3      desktop runtime
+  electron-vite             2.3.0       main / preload / renderer build orchestration
+
+Build toolchain
+  vite                      5.4.21
+  @vitejs/plugin-react      4.7.0
+  typescript                5.9.3
+  tailwindcss               4.3.3
+  @tailwindcss/vite         4.3.3
+
+Types
+  @types/node               22.20.1
+  @types/react              18.3.31
+  @types/react-dom          18.3.7
+
+Testing
+  vitest                    3.2.7
+  @vitest/coverage-v8       3.2.7       coverage; services/** floor is 80% lines
+  jsdom                     27.0.1      DOM environment for component suites
+  @testing-library/react            16.3.2
+  @testing-library/user-event        14.6.4
+  @testing-library/jest-dom          7.0.1
+
+Linting and formatting
+  eslint                    9.39.5      flat config (eslint.config.mjs)
+  @eslint/js                9.39.5
+  typescript-eslint         8.67.0
+  eslint-plugin-react-hooks 7.1.1
+  eslint-plugin-jsx-a11y    6.10.2      guards the accessibility requirements
+  eslint-config-prettier    10.1.8      must stay last in the config array
+  prettier                  3.9.6       singleQuote, no semicolons, printWidth 100
+
+
+-------------------------------------------------------------------------------
+4. COMMANDS
+-------------------------------------------------------------------------------
+npm install                 install dependencies
+npm run dev                 launch the app with hot reload
+npm run build               typecheck, then bundle into out/
+npm run test                run the test suite (129 tests, 13 files)
+npm run test:coverage       coverage report into artifacts/coverage
+npm run lint                eslint
+npm run format              prettier --write .   (format:check for CI)
+npm run smoke               end-to-end run against the built app (needs a display)
+npm run verify              typecheck + lint + format:check + test + build
+                            >>> this is the gate; it must exit 0 before any commit
+
+
+-------------------------------------------------------------------------------
+5. WHAT THE BACKEND MUST PROVIDE
+-------------------------------------------------------------------------------
+None of this exists yet; the frontend runs on mock data until it does. Payload
+shapes are the exported interfaces in src/renderer/types/index.ts — treat that
+file as the contract. Full detail is in README.md > Backend integration.
+
+Authentication
+  POST /auth/login                 email + password -> Supervisor + token
+  GET  /auth/google                OAuth handshake (opens in the system browser)
+  GET  /auth/me                    validate a restored session token -> Supervisor
+  POST /auth/forgot-password       trigger reset mail; ALWAYS report success
+  POST /auth/change-password       rotate the supervisor's password
+
+Site state
+  GET  /workers                    roster with live presence and PPE state
+  GET  /workers/{id}/attendance    per-worker daily history
+  GET  /alerts                     active AND resolved (history is retained)
+  POST /alerts/{id}/resolve        mark resolved; record resolver and timestamp
+  GET  /cameras                    inventory with online/offline status
+  POST /cameras/{id}/refresh       tear down and re-establish one stream
+
+Push channel (required — not optional)
+  WebSocket, SSE, or Electron IPC delivering BLE sensor events as they happen.
+  This replaces services/liveFeed.ts and is what keeps the dashboard, the alert
+  banner, and the alert count moving without a reload.
+
+Deliberately NOT an endpoint
+  Dashboard metrics. They are derived on the client from the roster and the
+  alert list, which is why the dashboard cards can never disagree with the
+  Alerts screen. Do not serve them separately.
+
+Camera streams
+  RTSP/HLS or equivalent URLs per camera. Streams are for human visual
+  confirmation only — this application performs no AI detection of any kind.
+
+Constraints carried over from the SRS
+  - A failed login must never reveal which credential was wrong (FR-1.5).
+  - Forgot-password must always report success, so responses cannot be used to
+    enumerate accounts (FR-1.7).
+  - Resolved alerts are retained as history and never deleted (FR-5.12).
+  - The server's session expiry is authoritative; the client's 30-minute idle
+    and 12-hour absolute timeouts are an upper bound, not the source of truth.

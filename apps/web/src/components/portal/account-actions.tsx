@@ -1,0 +1,3 @@
+'use client';
+import { useState } from 'react';
+export function AccountActions({id,status}:{id:string;status:string}){const [busy,setBusy]=useState(false);async function change(action:'SUSPEND'|'ACTIVATE'){setBusy(true);const response=await fetch(`/api/users/${id}`,{method:'PATCH',headers:{'content-type':'application/json'},body:JSON.stringify({action})});const result=await response.json();if(!response.ok)alert(result.error);else location.reload();setBusy(false)}return <button className="table-action" disabled={busy} onClick={()=>change(status==='ACTIVE'?'SUSPEND':'ACTIVATE')}>{busy?'Updating…':status==='ACTIVE'?'Remove access':'Restore access'}</button>}

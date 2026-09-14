@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Generate QR Codes — Shield X</title>
+<link rel="stylesheet" href="style.css" />
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+</head>
+<body>
+  <div id="auth-gate" class="auth-gate">
+    <div class="auth-card">
+      <h1>Shield X</h1>
+      <p>Sign in required</p>
+      <button id="sign-in-btn" class="btn btn-primary">Sign in with Google</button>
+    </div>
+  </div>
+
+  <div id="app-content" class="app-content" style="display:none">
+    <header class="topbar">
+      <a class="back-link" href="index.html">&larr; Home</a>
+      <div class="brand">Generate QR Codes</div>
+      <div class="user-info">
+        <span id="auth-user-label"></span>
+        <button id="sign-out-btn" class="btn btn-ghost">Sign out</button>
+      </div>
+    </header>
+
+    <main class="page">
+      <!-- Danger zone: wipe all old QR records before regenerating -->
+      <section class="panel" style="border-color:#7f1d1d;">
+        <div class="panel-header">
+          <div>
+            <h2 style="margin:0;color:#f87171;">⚠️ Danger Zone — Clear Existing Gear</h2>
+            <p style="margin:4px 0 0;color:#94a3b8;font-size:13px;">
+              Delete <strong>all</strong> gear records from Firestore before generating fresh QR codes.
+              This removes every helmet &amp; vest entry so the new batch starts clean.
+            </p>
+          </div>
+          <button id="delete-all-btn" class="btn" style="background:#dc2626;color:#fff;white-space:nowrap;">
+            🗑 Delete All Gear
+          </button>
+        </div>
+        <p id="delete-status" style="display:none;font-size:13px;margin:0;"></p>
+      </section>
+
+      <section class="panel">
+        <h2>Gear range</h2>
+        <form id="generate-form" class="form-grid">
+          <label>
+            Gear type
+            <select id="gear-type" required>
+              <option value="helmet">Helmet</option>
+              <option value="vest">Vest</option>
+            </select>
+          </label>
+          <label>
+            Start ID number
+            <input id="start-id" type="number" min="1" value="1001" required />
+          </label>
+          <label>
+            End ID number
+            <input id="end-id" type="number" min="1" value="1010" required />
+          </label>
+          <button type="submit" class="btn btn-primary">Generate &amp; Save to Database</button>
+        </form>
+        <p id="form-error" class="error-text" style="display:none"></p>
+      </section>
+
+      <section class="panel" id="results-panel" style="display:none">
+        <div class="panel-header">
+          <h2>Generated QR codes</h2>
+          <button id="download-all-btn" class="btn btn-secondary">Download all (ZIP)</button>
+        </div>
+        <div id="qr-grid" class="qr-grid"></div>
+      </section>
+    </main>
+  </div>
+
+  <script type="module" src="generate.js"></script>
+</body>
+</html>

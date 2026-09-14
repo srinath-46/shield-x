@@ -1,0 +1,3 @@
+@media(min-width:1251px){.leadership-grid{grid-template-columns:repeat(5,1fr);gap:22px}.leader-info h3{font-size:18px}.leader-info p{font-size:11.5px}}
+@media(min-width:901px) and (max-width:1250px){.leadership-grid{grid-template-columns:repeat(3,1fr);gap:58px 30px}}
+@media(min-width:701px) and (max-width:900px){.leadership-grid{grid-template-columns:repeat(2,1fr)}}

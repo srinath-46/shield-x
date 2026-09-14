@@ -1,0 +1,6 @@
+.brand-mark{display:grid;place-items:center;width:38px;height:42px;background:transparent;color:var(--orange);clip-path:none}
+.brand-mark svg{display:block;width:29px;height:34px;overflow:visible}
+.brand-mark path{fill:none;stroke:currentColor;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;transition:fill .2s ease,transform .2s ease}
+.product-brand:hover .brand-mark path{fill:rgba(255,103,16,.1);transform:translateY(-1px)}
+.footer-brand .brand-mark{color:var(--orange)}
+@media(max-width:800px){.brand-mark{width:34px;height:38px}.brand-mark svg{width:26px;height:31px}}

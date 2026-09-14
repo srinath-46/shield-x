@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>View Gears — Shield X</title>
+<link rel="stylesheet" href="style.css" />
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+</head>
+<body>
+  <div id="auth-gate" class="auth-gate">
+    <div class="auth-card">
+      <h1>Shield X</h1>
+      <p>Sign in required</p>
+      <button id="sign-in-btn" class="btn btn-primary">Sign in with Google</button>
+    </div>
+  </div>
+
+  <div id="app-content" class="app-content" style="display:none">
+    <header class="topbar">
+      <a class="back-link" href="index.html">&larr; Home</a>
+      <div class="brand">View Gears</div>
+      <div class="user-info">
+        <span id="auth-user-label"></span>
+        <button id="sign-out-btn" class="btn btn-ghost">Sign out</button>
+      </div>
+    </header>
+
+    <main class="page">
+      <section class="panel" id="duplicates-panel" style="display:none">
+        <div class="panel-header">
+          <h2>Duplicate QR codes found</h2>
+        </div>
+        <p class="muted-text" style="text-align:left">
+          Each group below shares the same QR code value. The most recently created gear ID in
+          each group will be kept; the older duplicate(s) will be permanently deleted.
+        </p>
+        <div id="duplicates-list"></div>
+        <div class="panel-header" style="margin-top:16px">
+          <button id="cancel-duplicates-btn" class="btn btn-ghost">Cancel</button>
+          <button id="confirm-duplicates-btn" class="btn btn-primary">Remove older duplicates</button>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <input id="search-input" type="search" placeholder="Search by ID, QR code, type, status, worker..." class="search-input" />
+          <button id="unassign-all-btn" class="btn btn-secondary">Unassign All</button>
+          <button id="find-duplicates-btn" class="btn btn-secondary">Find Duplicates</button>
+          <button id="refresh-btn" class="btn btn-secondary">Refresh</button>
+        </div>
+        <div class="table-wrap">
+          <table id="gears-table">
+            <thead>
+              <tr>
+                <th>Gear ID</th>
+                <th>Type</th>
+                <th>QR Code</th>
+                <th>Site</th>
+                <th>Status</th>
+                <th>Assigned To</th>
+                <th>QR Image</th>
+              </tr>
+            </thead>
+            <tbody id="gears-tbody"></tbody>
+          </table>
+        </div>
+        <p id="empty-state" class="muted-text" style="display:none">No gear records found.</p>
+      </section>
+    </main>
+  </div>
+
+  <script type="module" src="gears.js"></script>
+</body>
+</html>

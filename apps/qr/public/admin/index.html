@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Shield X — Gear Admin</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="auth-gate" class="auth-gate">
+    <div class="auth-card">
+      <h1>Shield X</h1>
+      <p>Gear QR Admin</p>
+      <button id="sign-in-btn" class="btn btn-primary">Sign in with Google</button>
+    </div>
+  </div>
+
+  <div id="app-content" class="app-content" style="display:none">
+    <header class="topbar">
+      <div class="brand">Shield X <span>Gear Admin</span></div>
+      <div class="user-info">
+        <span id="auth-user-label"></span>
+        <button id="sign-out-btn" class="btn btn-ghost">Sign out</button>
+      </div>
+    </header>
+
+    <main class="home-grid">
+      <a class="option-card" href="generate.html">
+        <div class="option-icon">&#9638;</div>
+        <h2>Generate QR Codes</h2>
+        <p>Create helmet and vest QR codes for a range of gear IDs and save them straight to the shared database.</p>
+      </a>
+      <a class="option-card" href="gears.html">
+        <div class="option-icon">&#8801;</div>
+        <h2>View Gears</h2>
+        <p>Browse, search, and download previously generated gear QR codes.</p>
+      </a>
+    </main>
+  </div>
+
+  <script type="module">
+    import { requireAdminAuth } from "./firebase-init.js";
+    requireAdminAuth(() => {});
+  </script>
+</body>
+</html>
