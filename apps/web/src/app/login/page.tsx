@@ -9,7 +9,7 @@ import {
   signInWithPopup,
   User,
 } from 'firebase/auth';
-import { auth } from '@/lib/firebase';
+import { auth } from '@shieldx/database/firebase';
 
 type AuthMethod = 'email' | 'google' | null;
 type GoogleProfile = { name: string; email: string; photo: string | null };

@@ -1,4 +1,4 @@
-import { prisma } from './prisma';
+import { prisma } from '@shieldx/database';
 
 export const defaultPlans={
   basic:{name:'Foundation',pricePaise:499900,billingMonths:12,maxSupervisors:2,maxWorkers:20,maxSites:1,features:['Signed digital license','Supervisor desktop access','Worker mobile access','Secure invitations','Audit history']},
@@ -7,5 +7,15 @@ export const defaultPlans={
 } as const;
 
 export type PlanId=keyof typeof defaultPlans;
-export async function ensurePlans(){await Promise.all(Object.entries(defaultPlans).map(([id,plan])=>prisma.plan.upsert({where:{id},update:{active:true},create:{id,...plan,features:[...plan.features]}})));return prisma.plan.findMany({where:{active:true},orderBy:{pricePaise:'asc'}})}
+export async function ensurePlans() {
+  for (const [id, plan] of Object.entries(defaultPlans)) {
+    await prisma.plan.upsert({
+      where: { id },
+      update: { active: true },
+      create: { id, ...plan, features: [...plan.features] },
+    });
+  }
+  return prisma.plan.findMany({ where: { active: true }, orderBy: { pricePaise: 'asc' } });
+}
+
 export async function getActivePlan(id:PlanId){await ensurePlans();const plan=await prisma.plan.findFirst({where:{id,active:true}});if(!plan)throw new Error('Selected plan is unavailable');return plan}

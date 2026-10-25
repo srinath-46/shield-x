@@ -1,8 +1,8 @@
 import { createHmac } from 'crypto';
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
-import { prisma } from '@/lib/prisma';
-import { adminAuth } from '@/lib/firebase-admin';
+import { prisma } from '@shieldx/database';
+import { adminAuth } from '@shieldx/database';
 import { createLicense } from '@/lib/license';
 import { sendMail } from '@/lib/mail';
 
@@ -32,7 +32,7 @@ export async function POST(req:Request){
       const license=await tx.license.create({data:{organizationId:org.id,subscriptionId:subscription.id,key:signed.key,signedPayload:signed.payload,signature:signed.signature,publicKey:signed.publicKey,expiresAt}});
       await tx.auditLog.create({data:{organizationId:org.id,actorId:admin.id,action:'ORGANIZATION_ACTIVATED',entityType:'LICENSE',entityId:license.id,metadata:{paymentId:data.razorpay_payment_id}}});
       return license;
-    });
+    },{maxWait:15000,timeout:30000});
     await sendMail(data.adminEmail,'Your Shield X license is active',`<h1>Shield X activated</h1><p>Your verified organization license is:</p><p><strong>${result.key}</strong></p><p>Valid until ${expiresAt.toLocaleDateString('en-IN')}.</p>`).catch(error=>console.error('License email delivery failed',error));
     return NextResponse.json({licenseKey:result.key});
   }catch(e){if(firebaseUid)await adminAuth.deleteUser(firebaseUid).catch(()=>{});console.error(e);return NextResponse.json({error:e instanceof Error?e.message:'Payment verification failed.'},{status:400})}

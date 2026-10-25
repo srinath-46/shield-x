@@ -1,4 +1,4 @@
-import { prisma } from './prisma';
+import { prisma } from '@shieldx/database';
 
 export async function evaluateOrganizationAccess(organizationId:string){
   const now=new Date();

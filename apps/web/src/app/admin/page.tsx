@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { currentUser } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
+import { prisma } from '@shieldx/database';
 import { evaluateOrganizationAccess } from '@/lib/organization-access';
 import { PortalShell } from '@/components/portal/portal-shell';
 import { adminNavigation } from '@/lib/portal-navigation';

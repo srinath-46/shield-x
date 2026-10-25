@@ -2,7 +2,7 @@ import { createHash,randomBytes } from 'crypto';
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { requireRole } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
+import { prisma } from '@shieldx/database';
 import { sendMail } from '@/lib/mail';
 
 const input=z.object({name:z.string().min(2),email:z.string().email(),phone:z.string().min(7),siteId:z.string().uuid(),zoneId:z.string().uuid().optional().or(z.literal('')),workerCode:z.string().optional(),shift:z.string().optional()});

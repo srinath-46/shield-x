@@ -1,0 +1,23 @@
+{
+  "name": "@shieldx/database",
+  "version": "1.0.0",
+  "private": true,
+  "main": "index.ts",
+  "exports": {
+    ".": "./index.ts",
+    "./firebase": "./firebase.ts",
+    "./client": "./firebase.ts",
+    "./prisma": "./prisma.ts",
+    "./firebase-admin": "./firebase-admin.ts"
+  },
+  "dependencies": {
+    "@prisma/client": "5.22.0",
+    "firebase": "^10.14.1",
+    "firebase-admin": "12.7.0"
+  },
+  "devDependencies": {
+    "prisma": "5.22.0",
+    "typescript": "5.7.2",
+    "@types/node": "22.10.2"
+  }
+}

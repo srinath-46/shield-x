@@ -1,6 +1,6 @@
 import { cookies } from 'next/headers';
-import { getAdminAuth } from './firebase-admin';
-import { prisma } from './prisma';
+import { getAdminAuth } from '@shieldx/database';
+import { prisma } from '@shieldx/database';
 import { evaluateOrganizationAccess } from './organization-access';
 
 export async function currentUser() {

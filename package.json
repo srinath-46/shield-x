@@ -1,0 +1,8 @@
+{
+  "name": "shieldx-workspace",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "database"
+  ]
+}
