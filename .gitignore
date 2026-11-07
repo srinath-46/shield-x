@@ -34,3 +34,6 @@ Thumbs.db
 # Gradle & Android builds (apps/mobile)
 .gradle/
 local.properties
+
+.vercel
+.env*
