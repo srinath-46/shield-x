@@ -1,0 +1,21 @@
+# Other apps not part of the web deployment
+apps/mobile
+apps/desktop
+apps/qr
+scripts
+
+# Dependencies and build caches
+node_modules
+apps/web/node_modules
+apps/web/.next
+.next
+.gradle
+.kotlin
+build
+dist
+out
+*.tsbuildinfo
+*.apk
+*.aab
+*.exe
+*.dll
