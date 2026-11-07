@@ -6,13 +6,13 @@
     "predev": "node scripts/clean-next.mjs",
     "prebuild": "node scripts/clean-next.mjs",
     "dev": "next dev",
-    "build": "next build",
+    "build": "prisma generate --schema=../../database/prisma/schema.prisma && next build",
+    "postinstall": "prisma generate --schema=../../database/prisma/schema.prisma",
     "start": "next start"
   },
   "dependencies": {
     "@firebase/app": "^0.10.13",
     "@firebase/auth": "^1.7.9",
-    "@next/swc-win32-x64-msvc": "^14.2.33",
     "@shieldx/database": "*",
     "@supabase/ssr": "^0.12.7",
     "@supabase/supabase-js": "^2.118.0",
@@ -30,6 +30,10 @@
     "@types/node": "22.10.2",
     "@types/react": "18.3.18",
     "@types/react-dom": "18.3.5",
+    "prisma": "5.22.0",
     "typescript": "5.7.2"
+  },
+  "optionalDependencies": {
+    "@next/swc-win32-x64-msvc": "^14.2.33"
   }
 }
