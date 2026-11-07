@@ -1,8 +1,8 @@
-# Other apps not part of the web deployment
-apps/mobile
-apps/desktop
-apps/qr
-scripts
+# Other apps not part of the web deployment (anchored to root)
+/apps/mobile
+/apps/desktop
+/apps/qr
+/scripts
 
 # Dependencies and build caches
 node_modules
